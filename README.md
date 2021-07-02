@@ -3,4 +3,8 @@
 
 Simple Arduino library to configure and control the IS31FL3246 36-channel led driver. I designed a 12-rgb-led ring to test this driver. The sketch demonstrates effects such as breathing mode, comet rings and color wheel rotation as well as software power up and power down. This driver is simple and easy to use; a worthy competitor to the LP5036.
 
-![led ring]()
+![led ring](https://user-images.githubusercontent.com/6698410/124334299-88dac180-db4b-11eb-93b9-2c9ee07eb414.jpg)
+
+![led ring close]()
+
+The ring uses Lumex LX0303 rgb leds. The ring [design](https://oshpark.com/shared_projects/E5gRvFSZ) is available in the shared space on OSH Park.
