@@ -34,12 +34,21 @@ byte PWM_Gamma64[64]=
   0xe1,0xe9,0xed,0xf1,0xf6,0xfa,0xfe,0xff
 };
 
+uint8_t white[3]   = {0xFF, 0xFF, 0xFF};
+uint8_t red[3]     = {0xFF, 0x00, 0x00};
+uint8_t green[3]   = {0x00, 0xFF, 0x00};
+uint8_t blue[3]    = {0x00, 0x00, 0xFF};
+uint8_t yellow[3]  = {0xFF, 0xFF, 0x00};
+uint8_t magenta[3] = {0x7F, 0x00, 0xFF};
+uint8_t cyan[3]    = {0x00, 0xCC, 0xCC};
+uint8_t black[3]   = {0xFF, 0xFF, 0x00};
+
 // Configure led driver
 uint8_t resolution = HFRES_8bit;  // set HF PWM resolution, either HFRES_8bit or HFRES_10bit
 uint8_t frequency = HF_32kHz;     // set HF PWM frequency, either HF_32kHz, HF_64kHz, or HF_128kHz
 uint8_t ledMode = allChannels;    // select individual control (allChannels) or RGB group control (RGBgroup)
 //for white balance
-uint8_t IR = 148;                 // set global red current maximum from 0 - 255, so IR/256 x Iset (16 mA)
+uint8_t IR = 136;                 // set global red current maximum from 0 - 255, so IR/256 x Iset (16 mA)
 uint8_t IG = 128;                 // set global green current maximum from 0 - 255
 uint8_t IB = 128;                 // set global blue current maximum from 0 - 255
 
@@ -84,6 +93,30 @@ void loop() {
   IS31FL3246A.disable();
   delay(1000);
   Serial.println("End of individual led function test!");
+
+
+  // Color test
+  IS31FL3246A.enable();
+
+  allLEDOn(red);
+  delay(1000);
+  allLEDOn(green);
+  delay(1000);
+  allLEDOn(blue);
+  delay(1000);
+  allLEDOn(yellow);
+  delay(1000);
+  allLEDOn(cyan);
+  delay(1000);
+  allLEDOn(magenta);
+  delay(1000);
+  allLEDOn(white);
+  delay(1000);
+
+  allLEDOff();
+  IS31FL3246A.disable();
+  delay(1000);
+  Serial.println("End of color test!");
 
 
   // led breathing mode test
@@ -149,30 +182,41 @@ void loop() {
   // white comet growing in intensity test
   IS31FL3246A.enable();
 
-  for(uint8_t j = 1; j < 8; j++)
+  for(uint8_t j = 1; j < 16; j++)
   {
      for(uint8_t ii = 1; ii < 36; ii++)
      {
-     IS31FL3246A.setHFPWM(ii, HFPandLFP, 0, j*32);  
+     IS31FL3246A.setHFPWM(ii, HFPandLFP, 0, j*16);  
      }
 
-    for(uint8_t i = 4; i <= 12; i++)
+    for(uint8_t i = 1; i <= 12; i++)
     {
-     IS31FL3246A.setLFPWM((i*3), 0xFF);     // full on
+     IS31FL3246A.setLFPWM((i*3), 0xFF);          // full on
      IS31FL3246A.setLFPWM((i*3 - 1), 0xFF);  
      IS31FL3246A.setLFPWM((i*3 - 2), 0xFF);  
-     
+
+     uint8_t k = i;
+     if(i == 1) i += 12;
      IS31FL3246A.setLFPWM(((i - 1)*3), 128);     // half on
      IS31FL3246A.setLFPWM(((i - 1)*3 - 1), 128);  
      IS31FL3246A.setLFPWM(((i - 1)*3 - 2), 128);  
-     
+     if(i == 2) i += 12;    
      IS31FL3246A.setLFPWM(((i - 2)*3), 64);     // quarter on
      IS31FL3246A.setLFPWM(((i - 2)*3 - 1), 64);  
      IS31FL3246A.setLFPWM(((i - 2)*3 - 2), 64);  
-     
+     if(i == 3) i += 12;     
      IS31FL3246A.setLFPWM(((i - 3)*3), 32);     // eighth on
      IS31FL3246A.setLFPWM(((i - 3)*3 - 1), 32); 
      IS31FL3246A.setLFPWM(((i - 3)*3 - 2), 32);  
+     if(i == 4) i += 12;     
+     IS31FL3246A.setLFPWM(((i - 4)*3), 16);     // sixteenth on
+     IS31FL3246A.setLFPWM(((i - 4)*3 - 1), 16); 
+     IS31FL3246A.setLFPWM(((i - 4)*3 - 2), 16);  
+     if(i == 5) i += 12;     
+     IS31FL3246A.setLFPWM(((i - 5)*3), 8);     // thirty-secondth on
+     IS31FL3246A.setLFPWM(((i - 5)*3 - 1), 8); 
+     IS31FL3246A.setLFPWM(((i - 5)*3 - 2), 8);  
+     i = k;
      IS31FL3246A.PWMUpdate();
      delay(100);
      
@@ -356,4 +400,16 @@ void hueToRGB(uint8_t hue, uint8_t brightness)
         B = prev;
     break;
     }
+}
+
+
+void allLEDOn(uint8_t * Hue)
+{
+     for(uint8_t i = 1; i <= 12; i++)
+    {
+      IS31FL3246A.setLFPWM(3*i - 2, Hue[1]); //set green
+      IS31FL3246A.setLFPWM(3*i - 1, Hue[0]); //set red
+      IS31FL3246A.setLFPWM(3*i,     Hue[2]); //set blue
+    }
+    IS31FL3246A.PWMUpdate();      //update PWM & control registers
 }
